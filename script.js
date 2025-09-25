@@ -1,5 +1,6 @@
 const botcLobbiesLinks = [
     "https://botc.app/join/clockmakers",
+    "https://botc.app/join/asylum%F0%9F%A7%A0",
 ];
 
 async function startup() {
@@ -15,7 +16,9 @@ async function startup() {
             console.log("Lobby URL:", lobby.url);
             console.log("Is game running:", lobby.isGameRunning());
             console.log("Game description:", lobby.getGameDescription());
+            console.log("Storytellers:", lobby.getStoryTellers());
             console.log("Players:", lobby.getPlayers());
+            console.log("Open seats:", lobby.getOpenSeats());
         });
     }
 
@@ -47,6 +50,16 @@ class BOTCLobby {
         this.#lobbyHTML = parseHTMLRecursively(data)[0]; // Get the root HTML node
         this.#selfClosingTags = new HTMLNode("html", {}, getSelfClosingTags(data));
         
+        console.log(this.#lobbyHTML);
+        console.log(this.#selfClosingTags);
+    }
+
+    getOpenSeats() {
+        if (!this.isGameRunning()) return 0;
+        let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
+        let regex = /\((\S+)\s.+/g;
+        let match = regex.exec(metaTag.attributes.content);
+        return match ? parseInt(match[1]) : 0;
     }
 
     isGameRunning() {
@@ -67,7 +80,11 @@ class BOTCLobby {
         if (!this.isGameRunning()) return [];
 
         const storyTellers = [];
-        this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "storytellers").content.forEach(storyTellerNode => {
+        const storyTellerListNode = this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "storytellers");
+
+        if (!storyTellerListNode.content) return [];
+
+        storyTellerListNode.content.forEach(storyTellerNode => {
             const storyTellerName = storyTellerNode.content;
             storyTellers.push(storyTellerName);
         });
@@ -80,10 +97,37 @@ class BOTCLobby {
         const players = [];
         this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "players").content.forEach(playerNode => {
             const playerName = playerNode.content;
-            players.push(playerName);
+            players.push(new BOTCPlayer(playerName));
         });
         return players;
     }
+}
+
+class BOTCPlayer {
+    #input
+    #statusSymbol
+    constructor(name) {
+        this.#input = name;
+        this.#statusSymbol = this.#input.split(" ", 1)[0];
+        this.name = this.#input.split(" ").slice(1).join(" ");
+    }
+
+    get status() {
+        switch (this.#statusSymbol) {
+            case "🔘":
+                return "dead";
+                break;
+            case "🔵":
+                return "dead vote used";
+                break;
+            case "⚪":
+                return "alive";
+                break;
+            default:
+                return "unknown";
+        }
+    }
+    
 }
 
 class HTMLNode {
