@@ -1,6 +1,5 @@
 const botcLobbiesLinks = [
     "https://botc.app/join/clockmakers",
-    "https://botc.app/join/asylum%F0%9F%A7%A0",
 ];
 
 async function startup() {
@@ -14,25 +13,18 @@ async function startup() {
     for (const lobby of lobbies) {
         lobby.fetchLobbyData().then(() => {
             console.log("Lobby URL:", lobby.url);
+            console.log("Lobby name:", lobby.getLobbyName());
             console.log("Is game running:", lobby.isGameRunning());
             console.log("Game description:", lobby.getGameDescription());
+            console.log("Script name:", lobby.getScriptName());
             console.log("Storytellers:", lobby.getStoryTellers());
             console.log("Players:", lobby.getPlayers());
             console.log("Open seats:", lobby.getOpenSeats());
+            console.log("Phase:", lobby.getPhase());
+            console.log("Is between games:", lobby.isBetweenGames());
+            console.log("-----------------------------------------------")
         });
     }
-
-}
-
-function isGameRunning(parsedHTML) {
-
-    return parsedHTML.getChildByTagName("body").content.length > 1;
-
-}
-
-function getGameDescription(parsedHTML) {
-
-    return parsedHTML.getChildByAttribute("property", "og:description").attributes.content;
 
 }
 
@@ -54,6 +46,11 @@ class BOTCLobby {
         console.log(this.#selfClosingTags);
     }
 
+    getLobbyName() {
+        let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
+        return metaTag.attributes.content.split("'", 2).slice(1)[0];
+    }
+
     getOpenSeats() {
         if (!this.isGameRunning()) return 0;
         let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
@@ -62,10 +59,31 @@ class BOTCLobby {
         return match ? parseInt(match[1]) : 0;
     }
 
+    getScriptName() {
+        if (!this.isGameRunning()) return "No script";
+        let description = this.getGameDescription();
+        let regex = /Edition:\s(.+)/g;
+        let match = regex.exec(description);
+        return match ? match[1] : "No script";
+    }
+
+    getPhase() {
+        if (!this.isGameRunning()) return "No phase";
+        let description = this.getGameDescription();
+        let regex = /Phase:\s(.+)/g;
+        let match = regex.exec(description);
+        return match ? match[1] : "Game not running";
+    }
+
     isGameRunning() {
 
         return this.#lobbyHTML.getChildByTagName("body").content.length > 1;
 
+    }
+
+    isBetweenGames() {
+        if (!this.isGameRunning()) return false;
+        return this.getPhase().startsWith("⌛")
     }
 
     getGameDescription() {
