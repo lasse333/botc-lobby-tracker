@@ -2,6 +2,8 @@ const botcLobbiesLinks = [
     "https://botc.app/join/clockmakers",
 ];
 
+const discordWebhookURL = "";
+
 async function startup() {
     let lobbies = [];
 
@@ -11,19 +13,23 @@ async function startup() {
     }
 
     for (const lobby of lobbies) {
-        lobby.fetchLobbyData().then(() => {
-            console.log("Lobby URL:", lobby.url);
-            console.log("Lobby name:", lobby.getLobbyName());
-            console.log("Is game running:", lobby.isGameRunning());
-            console.log("Game description:", lobby.getGameDescription());
-            console.log("Script name:", lobby.getScriptName());
-            console.log("Storytellers:", lobby.getStoryTellers());
-            console.log("Players:", lobby.getPlayers());
-            console.log("Open seats:", lobby.getOpenSeats());
-            console.log("Phase:", lobby.getPhase());
-            console.log("Is between games:", lobby.isBetweenGames());
-            console.log("-----------------------------------------------")
-        });
+        lobby.updateDiscordMessage();
+        // lobby.fetchLobbyData().then(() => {
+        //     console.log("Lobby URL:", lobby.url);
+        //     console.log("Lobby name:", lobby.getLobbyName());
+        //     console.log("Is lobby open:", lobby.isLobbyOpen());
+        //     console.log("Game description:", lobby.getGameDescription());
+        //     console.log("Script name:", lobby.getScriptName());
+        //     console.log("Storytellers:", lobby.getStoryTellers());
+        //     console.log("Players:", lobby.getPlayers());
+        //     console.log("Spectators:", lobby.getSpectators());
+        //     console.log("Open seats:", lobby.getOpenSeats());
+        //     console.log("Phase:", lobby.getPhase());
+        //     console.log("Is between games:", lobby.isBetweenGames());
+        //     console.log("Is day:", lobby.isDay());
+        //     console.log("Is night:", lobby.isNight());
+        //     console.log("-----------------------------------------------")
+        // });
     }
 
 }
@@ -31,6 +37,7 @@ async function startup() {
 class BOTCLobby {
     #lobbyHTML;
     #selfClosingTags;
+    discordMessageID = null;
 
     constructor(url) {
         this.url = url;
@@ -42,17 +49,130 @@ class BOTCLobby {
         this.#lobbyHTML = parseHTMLRecursively(data)[0]; // Get the root HTML node
         this.#selfClosingTags = new HTMLNode("html", {}, getSelfClosingTags(data));
         
-        console.log(this.#lobbyHTML);
-        console.log(this.#selfClosingTags);
+        // console.log(this.#lobbyHTML);
+        // console.log(this.#selfClosingTags);
+    }
+
+    async updateDiscordMessage() {
+        await this.fetchLobbyData();
+        if (!this.isLobbyOpen()) {
+            this.deleteDiscordMessage();
+            return
+        } 
+        if (!this.discordMessageID) {
+            await this.sendDiscordMessage();
+        }
+
+        let color = 0x0; 
+        if (this.isBetweenGames()) color = 0x4b88ff; // Blue for between games
+        if (this.isDay()) color = 0xffc700; // Yellow for day
+        if (this.isNight()) color = 0x6319ff; // Purple for night
+
+        const response = await fetch(discordWebhookURL + "/messages/" + this.discordMessageID + "?with_components=true", {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "content": " ",
+                "embeds": [
+                    {
+                        "title": this.getLobbyName(),
+                        "type": "rich",
+                        "color": color,
+                        "fields": [
+                            {
+                                "name": "Storytellers",
+                                "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
+                            },
+                            {
+                                "name": "Spillere",
+                                "value": this.getPlayers().length,
+                                "inline": true
+                            },
+                            {
+                                "name": "I live",
+                                "value": this.getPlayers().filter(player => player.isAlive).length,
+                                "inline": true
+                            },
+                            {
+                                "name": "Døde",
+                                "value": this.getPlayers().filter(player => player.isDead).length,
+                                "inline": true
+                            },
+                            {
+                                "name": "Script",
+                                "value": this.getScriptName()
+                            },
+                            {
+                                "name": "Fase",
+                                "value": this.getPhase(),
+                                "inline": true
+                            },
+                            {
+                                "name": "Åbne pladser",
+                                "value": this.getOpenSeats(),
+                                "inline": true
+                            },
+                            {
+                                "name": "Tilskuere",
+                                "value": this.getSpectators().length,
+                                "inline": true
+                            }
+                        ]
+                    }
+                ],
+                "components": [
+                    {
+                        "type": 1,
+                        "components": [
+                            {
+                                "type": 2,
+                                "style": 5,
+                                "label": "Deltag",
+                                "url": this.url,
+                            }
+                        ]
+                    }
+                ]
+            })
+        })
+
+        return response;
+
+    }
+
+    async sendDiscordMessage() {
+        const response = await fetch(discordWebhookURL + "?wait=true", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: `Nu åbner rummet "${this.getLobbyName()}"`
+            })
+        })
+        const data = await response.json();
+        this.discordMessageID = data.id;
+
+        console.log(`Sent Discord message with ID: ${this.discordMessageID}`);
+    }
+
+    async deleteDiscordMessage() {
+        if (!this.discordMessageID) return;
+
+        fetch(`${discordWebhookURL}/messages/${this.discordMessageID}`, {
+            method: 'DELETE'
+        });
     }
 
     getLobbyName() {
         let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
-        return metaTag.attributes.content.split("'", 2).slice(1)[0];
+        return metaTag.attributes.content.split("'").slice(1, -1).join("'");
     }
 
     getOpenSeats() {
-        if (!this.isGameRunning()) return 0;
+        if (!this.isLobbyOpen()) return 0;
         let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
         let regex = /\((\S+)\s.+/g;
         let match = regex.exec(metaTag.attributes.content);
@@ -60,42 +180,55 @@ class BOTCLobby {
     }
 
     getScriptName() {
-        if (!this.isGameRunning()) return "No script";
+        if (!this.isLobbyOpen()) return "Lobby is closed";
         let description = this.getGameDescription();
         let regex = /Edition:\s(.+)/g;
         let match = regex.exec(description);
-        return match ? match[1] : "No script";
+        match = match ? match[1] : "No script";
+
+        match = match.replaceAll("&amp;", "&");
+        return match;
     }
 
     getPhase() {
-        if (!this.isGameRunning()) return "No phase";
+        if (!this.isLobbyOpen()) return "Lobby is closed";
         let description = this.getGameDescription();
         let regex = /Phase:\s(.+)/g;
         let match = regex.exec(description);
-        return match ? match[1] : "Game not running";
+        return match ? match[1] : "Lobby is closed";
     }
 
-    isGameRunning() {
+    isDay() {
+        if (!this.isLobbyOpen()) return false;
+        return this.getPhase().toLowerCase().includes("day");
+    }
+
+    isNight() {
+        if (!this.isLobbyOpen()) return false;
+        return this.getPhase().toLowerCase().includes("night");
+    }
+
+    isLobbyOpen() {
 
         return this.#lobbyHTML.getChildByTagName("body").content.length > 1;
 
     }
 
     isBetweenGames() {
-        if (!this.isGameRunning()) return false;
+        if (!this.isLobbyOpen()) return false;
         return this.getPhase().startsWith("⌛")
     }
 
     getGameDescription() {
         
-        if (!this.isGameRunning()) return "Game not running";
+        if (!this.isLobbyOpen()) return "Lobby is closed";
 
         return this.#selfClosingTags.getChildByAttribute("property", "og:description").attributes.content;
 
     }
 
     getStoryTellers() {
-        if (!this.isGameRunning()) return [];
+        if (!this.isLobbyOpen()) return [];
 
         const storyTellers = [];
         const storyTellerListNode = this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "storytellers");
@@ -110,7 +243,7 @@ class BOTCLobby {
     }
 
     getPlayers() {
-        if (!this.isGameRunning()) return [];
+        if (!this.isLobbyOpen()) return [];
 
         const players = [];
         this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "players").content.forEach(playerNode => {
@@ -118,6 +251,19 @@ class BOTCLobby {
             players.push(new BOTCPlayer(playerName));
         });
         return players;
+    }
+
+    getSpectators() {
+        if (!this.isLobbyOpen()) return [];
+        const spectators = [];
+        let regex = /Spectator\(s\):\s(.+)/g
+        let match = regex.exec(this.getGameDescription());
+        if (!match) return [];
+        match[1].split(", ").forEach(spectator => {
+            spectators.push(spectator);
+        });
+        return spectators;
+        
     }
 }
 
@@ -144,6 +290,14 @@ class BOTCPlayer {
             default:
                 return "unknown";
         }
+    }
+
+    get isAlive() {
+        return this.status === "alive";
+    }
+
+    get isDead() {
+        return this.status === "dead" || this.status === "dead vote used";
     }
     
 }
