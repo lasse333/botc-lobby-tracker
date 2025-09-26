@@ -83,69 +83,7 @@ class BOTCLobby {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                "content": " ",
-                "embeds": [
-                    {
-                        "title": this.getLobbyName(),
-                        "type": "rich",
-                        "color": color,
-                        "fields": [
-                            {
-                                "name": "Storytellers",
-                                "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
-                            },
-                            {
-                                "name": "Spillere",
-                                "value": this.getAmountOfPlayersInLobby(),
-                                "inline": true
-                            },
-                            {
-                                "name": "I live",
-                                "value": this.getPlayers().filter(player => player.isAlive).length,
-                                "inline": true
-                            },
-                            {
-                                "name": "Døde",
-                                "value": this.getPlayers().filter(player => player.isDead).length,
-                                "inline": true
-                            },
-                            {
-                                "name": "Script",
-                                "value": this.getScriptName()
-                            },
-                            {
-                                "name": "Fase",
-                                "value": this.getPhase(),
-                                "inline": true
-                            },
-                            {
-                                "name": "Åbne pladser",
-                                "value": this.getOpenSeats(),
-                                "inline": true
-                            },
-                            {
-                                "name": "Tilskuere",
-                                "value": this.getSpectators().length,
-                                "inline": true
-                            }
-                        ]
-                    }
-                ],
-                "components": [
-                    {
-                        "type": 1,
-                        "components": [
-                            {
-                                "type": 2,
-                                "style": 5,
-                                "label": "Deltag",
-                                "url": this.url,
-                            }
-                        ]
-                    }
-                ]
-            })
+            body: JSON.stringify(this.isBetweenGames() ? this.discordMessageWaitingForPlayers() : this.discordMessageGameRunning())
         })
 
         return response;
@@ -177,6 +115,133 @@ class BOTCLobby {
             method: 'DELETE'
         });
         this.discordMessageID = null;
+    }
+
+    discordMessageGameRunning() {
+        return {
+            "content": " ",
+            "embeds": [
+                {
+                    "title": this.getLobbyName(),
+                    "type": "rich",
+                    "color": color,
+                    "fields": [
+                        {
+                            "name": "Storytellers",
+                            "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
+                        },
+                        {
+                            "name": "Spillere",
+                            "value": this.getPlayers().length,
+                            "inline": true
+                        },
+                        {
+                            "name": "I live",
+                            "value": this.getPlayers().filter(player => player.isAlive).length,
+                            "inline": true
+                        },
+                        {
+                            "name": "Døde",
+                            "value": this.getPlayers().filter(player => player.isDead).length,
+                            "inline": true
+                        },
+                        {
+                            "name": "Script",
+                            "value": this.getScriptName()
+                        },
+                        {
+                            "name": "Fase",
+                            "value": this.getPhase(),
+                            "inline": true
+                        },
+                        {
+                            "name": " ",
+                            "value": " ",
+                            "inline": true
+                        },
+                        {
+                            "name": "Tilskuere",
+                            "value": this.getSpectators().length,
+                            "inline": true
+                        }
+                    ]
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "style": 5,
+                            "label": "Deltag",
+                            "url": this.url,
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
+    discordMessageWaitingForPlayers() {
+        return {
+            "content": " ",
+            "embeds": [
+                {
+                    "title": this.getLobbyName(),
+                    "type": "rich",
+                    "color": color,
+                    "fields": [
+                        {
+                            "name": "Storytellers",
+                            "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
+                        },
+                        {
+                            "name": "Spillere",
+                            "value": this.getAmountOfPlayersInLobby(),
+                            "inline": !this.isBetweenGames()
+                        },
+                        {
+                            "name": "Åbne pladser",
+                            "value": this.getOpenSeats(),
+                            "inline": true
+                        },
+                        {
+                            "name": "Script",
+                            "value": this.getScriptName()
+                        },
+                        {
+                            "name": "Fase",
+                            "value": this.getPhase(),
+                            "inline": true
+                        },
+                        {
+                            "name": " ",
+                            "value": " ",
+                            "inline": true
+                        },
+                        {
+                            "name": "Tilskuere",
+                            "value": this.getSpectators().length,
+                            "inline": true
+                        }
+                    ]
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "style": 5,
+                            "label": "Deltag",
+                            "url": this.url,
+                        }
+                    ]
+                }
+            ]
+        };
     }
 
     getLobbyName() {
