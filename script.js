@@ -4,35 +4,41 @@ const botcLobbiesLinks = [
 
 const discordWebhookURL = "";
 
+let lobbies = [];
+
 async function startup() {
-    let lobbies = [];
 
     for (const lobby of botcLobbiesLinks) {
         const botcLobby = new BOTCLobby(lobby);
         lobbies.push(botcLobby);
     }
 
-    setInterval(() => {
-        for (const lobby of lobbies) {
-            lobby.updateDiscordMessage();
-            // lobby.fetchLobbyData().then(() => {
-            //     console.log("Lobby URL:", lobby.url);
-            //     console.log("Lobby name:", lobby.getLobbyName());
-            //     console.log("Is lobby open:", lobby.isLobbyOpen());
-            //     console.log("Game description:", lobby.getGameDescription());
-            //     console.log("Script name:", lobby.getScriptName());
-            //     console.log("Storytellers:", lobby.getStoryTellers());
-            //     console.log("Players:", lobby.getPlayers());
-            //     console.log("Spectators:", lobby.getSpectators());
-            //     console.log("Open seats:", lobby.getOpenSeats());
-            //     console.log("Phase:", lobby.getPhase());
-            //     console.log("Is between games:", lobby.isBetweenGames());
-            //     console.log("Is day:", lobby.isDay());
-            //     console.log("Is night:", lobby.isNight());
-            //     console.log("-----------------------------------------------")
-            // });
-        }
-    }, 1000 * 60); // Keep the script running
+
+    setInterval(update, 1000 * 60); // Keep the script running
+    update(); // Initial update
+}
+
+async function update() {
+
+    for (const lobby of lobbies) {
+        lobby.updateDiscordMessage();
+        // lobby.fetchLobbyData().then(() => {
+        //     console.log("Lobby URL:", lobby.url);
+        //     console.log("Lobby name:", lobby.getLobbyName());
+        //     console.log("Is lobby open:", lobby.isLobbyOpen());
+        //     console.log("Game description:", lobby.getGameDescription());
+        //     console.log("Script name:", lobby.getScriptName());
+        //     console.log("Storytellers:", lobby.getStoryTellers());
+        //     console.log("Players:", lobby.getPlayers());
+        //     console.log("Spectators:", lobby.getSpectators());
+        //     console.log("Open seats:", lobby.getOpenSeats());
+        //     console.log("Phase:", lobby.getPhase());
+        //     console.log("Is between games:", lobby.isBetweenGames());
+        //     console.log("Is day:", lobby.isDay());
+        //     console.log("Is night:", lobby.isNight());
+        //     console.log("-----------------------------------------------")
+        // });
+    }
 }
 
 class BOTCLobby {
@@ -45,6 +51,7 @@ class BOTCLobby {
     }
 
     async fetchLobbyData() {
+        console.log(`Getting lobby data for: ${this.url}`);
         const response = await fetch(this.url);
         const data = await response.text();
         this.#lobbyHTML = parseHTMLRecursively(data)[0]; // Get the root HTML node
@@ -63,6 +70,8 @@ class BOTCLobby {
         if (!this.discordMessageID) {
             await this.sendDiscordMessage();
         }
+
+        console.log(`Updating Discord message for lobby: ${this.url}`);
 
         let color = 0x0; 
         if (this.isBetweenGames()) color = 0x4b88ff; // Blue for between games
@@ -144,6 +153,7 @@ class BOTCLobby {
     }
 
     async sendDiscordMessage() {
+        console.log(`Sending Discord message for lobby: ${this.url}`);
         const response = await fetch(discordWebhookURL + "?wait=true", {
             method: 'POST',
             headers: {
@@ -161,6 +171,7 @@ class BOTCLobby {
 
     async deleteDiscordMessage() {
         if (!this.discordMessageID) return;
+        console.log(`Deleting Discord message for lobby: ${this.url}`);
 
         fetch(`${discordWebhookURL}/messages/${this.discordMessageID}`, {
             method: 'DELETE'
