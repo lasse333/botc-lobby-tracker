@@ -1,11 +1,8 @@
 const botcLobbiesLinks = [
     "https://botc.app/join/clockmakers",
-    "https://botc.app/join/hmm12",
-    "https://botc.app/join/chill%20friday%20%3A)",
-    "https://botc.app/join/house%20of%20fun%20f%26b",
 ];
 
-const discordWebhookURL = "https://discord.com/api/webhooks/823858927036268554/BsNdQeVn9_q03PsvnzCE9XRvcD8MBYhSSZu8ixYgGcMWP2kT8bnoXjwZgUltod3GQU8o";
+const discordWebhookURL = "";
 
 let lobbies = [];
 
