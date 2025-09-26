@@ -1,8 +1,11 @@
 const botcLobbiesLinks = [
     "https://botc.app/join/clockmakers",
+    "https://botc.app/join/hmm12",
+    "https://botc.app/join/chill%20friday%20%3A)",
+    "https://botc.app/join/house%20of%20fun%20f%26b",
 ];
 
-const discordWebhookURL = "";
+const discordWebhookURL = "https://discord.com/api/webhooks/823858927036268554/BsNdQeVn9_q03PsvnzCE9XRvcD8MBYhSSZu8ixYgGcMWP2kT8bnoXjwZgUltod3GQU8o";
 
 let lobbies = [];
 
@@ -97,7 +100,7 @@ class BOTCLobby {
                             },
                             {
                                 "name": "Spillere",
-                                "value": this.getPlayers().length,
+                                "value": this.getAmountOfPlayersInLobby(),
                                 "inline": true
                             },
                             {
@@ -190,6 +193,11 @@ class BOTCLobby {
         let regex = /\((\S+)\s.+/g;
         let match = regex.exec(metaTag.attributes.content);
         return match ? parseInt(match[1]) : 0;
+    }
+
+    getAmountOfPlayersInLobby() {
+        if (!this.isLobbyOpen()) return 0;
+        return this.getPlayers().length - this.getOpenSeats();
     }
 
     getScriptName() {
