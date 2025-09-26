@@ -172,10 +172,11 @@ class BOTCLobby {
     async deleteDiscordMessage() {
         if (!this.discordMessageID) return;
         console.log(`Deleting Discord message for lobby: ${this.url}`);
-
+        
         fetch(`${discordWebhookURL}/messages/${this.discordMessageID}`, {
             method: 'DELETE'
         });
+        this.discordMessageID = null;
     }
 
     getLobbyName() {
