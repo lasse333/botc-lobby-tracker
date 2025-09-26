@@ -12,26 +12,27 @@ async function startup() {
         lobbies.push(botcLobby);
     }
 
-    for (const lobby of lobbies) {
-        lobby.updateDiscordMessage();
-        // lobby.fetchLobbyData().then(() => {
-        //     console.log("Lobby URL:", lobby.url);
-        //     console.log("Lobby name:", lobby.getLobbyName());
-        //     console.log("Is lobby open:", lobby.isLobbyOpen());
-        //     console.log("Game description:", lobby.getGameDescription());
-        //     console.log("Script name:", lobby.getScriptName());
-        //     console.log("Storytellers:", lobby.getStoryTellers());
-        //     console.log("Players:", lobby.getPlayers());
-        //     console.log("Spectators:", lobby.getSpectators());
-        //     console.log("Open seats:", lobby.getOpenSeats());
-        //     console.log("Phase:", lobby.getPhase());
-        //     console.log("Is between games:", lobby.isBetweenGames());
-        //     console.log("Is day:", lobby.isDay());
-        //     console.log("Is night:", lobby.isNight());
-        //     console.log("-----------------------------------------------")
-        // });
-    }
-
+    setInterval(() => {
+        for (const lobby of lobbies) {
+            lobby.updateDiscordMessage();
+            // lobby.fetchLobbyData().then(() => {
+            //     console.log("Lobby URL:", lobby.url);
+            //     console.log("Lobby name:", lobby.getLobbyName());
+            //     console.log("Is lobby open:", lobby.isLobbyOpen());
+            //     console.log("Game description:", lobby.getGameDescription());
+            //     console.log("Script name:", lobby.getScriptName());
+            //     console.log("Storytellers:", lobby.getStoryTellers());
+            //     console.log("Players:", lobby.getPlayers());
+            //     console.log("Spectators:", lobby.getSpectators());
+            //     console.log("Open seats:", lobby.getOpenSeats());
+            //     console.log("Phase:", lobby.getPhase());
+            //     console.log("Is between games:", lobby.isBetweenGames());
+            //     console.log("Is day:", lobby.isDay());
+            //     console.log("Is night:", lobby.isNight());
+            //     console.log("-----------------------------------------------")
+            // });
+        }
+    }, 1000 * 60); // Keep the script running
 }
 
 class BOTCLobby {
