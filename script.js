@@ -73,11 +73,6 @@ class BOTCLobby {
 
         console.log(`Updating Discord message for lobby: ${this.url}`);
 
-        let color = 0x0; 
-        if (this.isBetweenGames()) color = 0x4b88ff; // Blue for between games
-        if (this.isDay()) color = 0xffc700; // Yellow for day
-        if (this.isNight()) color = 0x6319ff; // Purple for night
-
         const response = await fetch(discordWebhookURL + "/messages/" + this.discordMessageID + "?with_components=true", {
             method: 'PATCH',
             headers: {
@@ -118,6 +113,9 @@ class BOTCLobby {
     }
 
     discordMessageGameRunning() {
+        let color = 0x0; // Default color
+        if (this.isDay()) color = 0xffc700; // Yellow for day
+        if (this.isNight()) color = 0x6319ff; // Purple for night
         return {
             "content": " ",
             "embeds": [
@@ -184,6 +182,7 @@ class BOTCLobby {
     }
 
     discordMessageWaitingForPlayers() {
+        let color = 0x4b88ff; // Blue for between games
         return {
             "content": " ",
             "embeds": [
