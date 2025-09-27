@@ -52,7 +52,13 @@ class BOTCLobby {
 
     async fetchLobbyData() {
         console.log(`Getting lobby data for: ${this.url}`);
-        const response = await fetch(this.url);
+        let response;
+        try {
+            response = await fetch(this.url);
+        } catch (error) {
+            console.error(`Failed to fetch lobby data for: ${this.url}`, error);
+            return;
+        }
         const data = await response.text();
         this.#lobbyHTML = parseHTMLRecursively(data)[0]; // Get the root HTML node
         this.#selfClosingTags = new HTMLNode("html", {}, getSelfClosingTags(data));
