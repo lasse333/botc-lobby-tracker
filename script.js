@@ -57,7 +57,7 @@ class BOTCLobby {
             response = await fetch(this.url);
         } catch (error) {
             console.error(`Failed to fetch lobby data for: ${this.url}`, error);
-            return;
+            throw error;
         }
         const data = await response.text();
         this.#lobbyHTML = parseHTMLRecursively(data)[0]; // Get the root HTML node
@@ -68,7 +68,11 @@ class BOTCLobby {
     }
 
     async updateDiscordMessage() {
-        await this.fetchLobbyData();
+        try {
+            await this.fetchLobbyData();
+        } catch (error) {
+            return;
+        }
         if (!this.isLobbyOpen()) {
             this.deleteDiscordMessage();
             return
