@@ -208,7 +208,7 @@ class BOTCLobby {
                         {
                             "name": "Spillere",
                             "value": this.getAmountOfPlayersInLobby(),
-                            "inline": !this.isBetweenGames()
+                            "inline": true
                         },
                         {
                             "name": "Åbne pladser",
