@@ -211,6 +211,11 @@ class BOTCLobby {
                             "inline": true
                         },
                         {
+                            "name": " ",
+                            "value": " ",
+                            "inline": true
+                        },
+                        {
                             "name": "Åbne pladser",
                             "value": this.getOpenSeats(),
                             "inline": true
