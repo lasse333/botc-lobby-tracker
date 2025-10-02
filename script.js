@@ -474,4 +474,45 @@ function parseAttributes(attributeString) {
     return attributes;
 }
 
+function dateToFootnote(date) {
+    const footnote = date.toLocaleString("da-DK", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+    return footnote;
+}
+
+function discordEmbedMessage(url, name, color=0x0, fields) {
+    return{
+            "content": " ",
+            "embeds": [
+                {
+                    "title": name,
+                    "type": "rich",
+                    "color": color,
+                    "fields": fields,
+                    "footer": {
+                        "text": "Sidst opdateret: " + dateToFootnote(new Date())
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "style": 5,
+                            "label": "Deltag",
+                            "url": url,
+                        }
+                    ]
+                }
+            ]
+        }
+}
+
 startup();
