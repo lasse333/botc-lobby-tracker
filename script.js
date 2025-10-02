@@ -193,26 +193,19 @@ class BOTCLobby {
 
     discordMessageWaitingForPlayers() {
         let color = 0x4b88ff; // Blue for between games
-        return {
-            "content": " ",
-            "embeds": [
-                {
-                    "title": this.getLobbyName(),
-                    "type": "rich",
-                    "color": color,
-                    "fields": [
+        return discordEmbedMessage(this.url, this.getLobbyName(), color, [
                         {
                             "name": "Storytellers",
                             "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
                         },
                         {
-                            "name": "Spillere",
-                            "value": this.getAmountOfPlayersInLobby(),
+                            "name": "Pladser",
+                            "value": this.getAllSeats().length,
                             "inline": true
                         },
                         {
-                            "name": " ",
-                            "value": " ",
+                            "name": "Spillere",
+                            "value": this.getPlayers().length,
                             "inline": true
                         },
                         {
@@ -229,33 +222,13 @@ class BOTCLobby {
                             "value": this.getPhase(),
                             "inline": true
                         },
-                        {
-                            "name": " ",
-                            "value": " ",
-                            "inline": true
-                        },
-                        {
+                                                {
                             "name": "Tilskuere",
                             "value": this.getSpectators().length,
                             "inline": true
                         }
-                    ]
-                }
-            ],
-            "components": [
-                {
-                    "type": 1,
-                    "components": [
-                        {
-                            "type": 2,
-                            "style": 5,
-                            "label": "Deltag",
-                            "url": this.url,
-                        }
-                    ]
-                }
-            ]
-        };
+                    ]);
+        
     }
 
     getLobbyName() {
