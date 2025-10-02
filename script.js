@@ -265,15 +265,8 @@ class BOTCLobby {
 
     getOpenSeats() {
         if (!this.isLobbyOpen()) return 0;
-        let metaTag = this.#selfClosingTags.getChildByAttribute("property", "og:title");
-        let regex = /\((\S+)\s.+/g;
-        let match = regex.exec(metaTag.attributes.content);
-        return match ? parseInt(match[1]) : 0;
-    }
-
-    getAmountOfPlayersInLobby() {
-        if (!this.isLobbyOpen()) return 0;
-        return this.getPlayers().length - this.getOpenSeats();
+        
+            return this.getAllSeats().length - this.getPlayers().length;
     }
 
     getScriptName() {
