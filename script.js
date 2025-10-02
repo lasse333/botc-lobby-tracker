@@ -103,7 +103,7 @@ class BOTCLobby {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-flags: 1 << 12, // this makes the message silent (no notifications) but unread marker still appears
+                flags: 1 << 12, // this makes the message silent (no notifications) but unread marker still appears
                 content: `Nu åbner rummet "${this.getLobbyName()}"`
             })
         })
@@ -128,85 +128,85 @@ flags: 1 << 12, // this makes the message silent (no notifications) but unread m
         if (this.isDay()) color = 0xffc700; // Yellow for day
         if (this.isNight()) color = 0x6319ff; // Purple for night
         return discordEmbedMessage(this.url, this.getLobbyName(), color, [
-                        {
-                            "name": "Storytellers",
-                            "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
-                        },
-                        {
-                            "name": "Beboere",
-                            "value": this.getAllSeats().length,
-                            "inline": true
-                        },
-                        {
-                            "name": "I live",
-                            "value": this.getAllSeats().filter(player => player.isAlive).length,
-                            "inline": true
-                        },
-                        {
-                            "name": "Døde",
-                            "value": this.getAllSeats().filter(player => player.isDead).length,
-                            "inline": true
-                        },
-                        {
-                            "name": "Script",
-                            "value": this.getScriptName()
-                        },
-                        {
-                            "name": "Fase",
-                            "value": this.getPhase(),
-                            "inline": true
-                        },
-                        {
-                            "name": "Tilskuere",
-                            "value": this.getSpectators().length,
-                            "inline": true
-                        },
-                        {
-                            "name": "Spillere",
-                            "value": this.getPlayers().length,
-                            "inline": true
-                        }
-                    ]);
+            {
+                "name": "Storytellers",
+                "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
+            },
+            {
+                "name": "Beboere",
+                "value": this.getAllSeats().length,
+                "inline": true
+            },
+            {
+                "name": "I live",
+                "value": this.getAllSeats().filter(player => player.isAlive).length,
+                "inline": true
+            },
+            {
+                "name": "Døde",
+                "value": this.getAllSeats().filter(player => player.isDead).length,
+                "inline": true
+            },
+            {
+                "name": "Script",
+                "value": this.getScriptName()
+            },
+            {
+                "name": "Fase",
+                "value": this.getPhase(),
+                "inline": true
+            },
+            {
+                "name": "Tilskuere",
+                "value": this.getSpectators().length,
+                "inline": true
+            },
+            {
+                "name": "Spillere",
+                "value": this.getPlayers().length,
+                "inline": true
+            }
+        ]);
         
     }
 
     discordMessageWaitingForPlayers() {
         let color = 0x4b88ff; // Blue for between games
         return discordEmbedMessage(this.url, this.getLobbyName(), color, [
-                        {
-                            "name": "Storytellers",
-                            "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
-                        },
-                        {
-                            "name": "Pladser",
-                            "value": this.getAllSeats().length,
-                            "inline": true
-                        },
-                        {
-                            "name": "Spillere",
-                            "value": this.getPlayers().length,
-                            "inline": true
-                        },
-                        {
-                            "name": "Åbne pladser",
-                            "value": this.getOpenSeats(),
-                            "inline": true
-                        },
-                        {
-                            "name": "Script",
-                            "value": this.getScriptName()
-                        },
-                        {
-                            "name": "Fase",
-                            "value": this.getPhase(),
-                            "inline": true
-                        },
-                                                {
-                            "name": "Tilskuere",
-                            "value": this.getSpectators().length,
-                            "inline": true
-                        }
-                    ]);
+            {
+                "name": "Storytellers",
+                "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
+            },
+            {
+                "name": "Pladser",
+                "value": this.getAllSeats().length,
+                "inline": true
+            },
+            {
+                "name": "Spillere",
+                "value": this.getPlayers().length,
+                "inline": true
+            },
+            {
+                "name": "Åbne pladser",
+                "value": this.getOpenSeats(),
+                "inline": true
+            },
+            {
+                "name": "Script",
+                "value": this.getScriptName()
+            },
+            {
+                "name": "Fase",
+                "value": this.getPhase(),
+                "inline": true
+            },
+            {
+                "name": "Tilskuere",
+                "value": this.getSpectators().length,
+                "inline": true
+            }
+        ]);
         
     }
 
@@ -218,7 +218,7 @@ flags: 1 << 12, // this makes the message silent (no notifications) but unread m
     getOpenSeats() {
         if (!this.isLobbyOpen()) return 0;
         
-            return this.getAllSeats().length - this.getPlayers().length;
+        return this.getAllSeats().length - this.getPlayers().length;
     }
 
     getScriptName() {
