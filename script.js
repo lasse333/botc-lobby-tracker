@@ -126,31 +126,24 @@ class BOTCLobby {
         let color = 0x0; // Default color
         if (this.isDay()) color = 0xffc700; // Yellow for day
         if (this.isNight()) color = 0x6319ff; // Purple for night
-        return {
-            "content": " ",
-            "embeds": [
-                {
-                    "title": this.getLobbyName(),
-                    "type": "rich",
-                    "color": color,
-                    "fields": [
+        return discordEmbedMessage(this.url, this.getLobbyName(), color, [
                         {
                             "name": "Storytellers",
                             "value": this.getStoryTellers().map(name => `* ${name}`).join("\n") || "Ingen",
                         },
                         {
-                            "name": "Spillere",
-                            "value": this.getPlayers().length,
+                            "name": "Beboere",
+                            "value": this.getAllSeats().length,
                             "inline": true
                         },
                         {
                             "name": "I live",
-                            "value": this.getPlayers().filter(player => player.isAlive).length,
+                            "value": this.getAllSeats().filter(player => player.isAlive).length,
                             "inline": true
                         },
                         {
                             "name": "Døde",
-                            "value": this.getPlayers().filter(player => player.isDead).length,
+                            "value": this.getAllSeats().filter(player => player.isDead).length,
                             "inline": true
                         },
                         {
@@ -163,32 +156,17 @@ class BOTCLobby {
                             "inline": true
                         },
                         {
-                            "name": " ",
-                            "value": " ",
-                            "inline": true
-                        },
-                        {
                             "name": "Tilskuere",
                             "value": this.getSpectators().length,
                             "inline": true
-                        }
-                    ]
-                }
-            ],
-            "components": [
-                {
-                    "type": 1,
-                    "components": [
+                        },
                         {
-                            "type": 2,
-                            "style": 5,
-                            "label": "Deltag",
-                            "url": this.url,
+                            "name": "Spillere",
+                            "value": this.getPlayers().length,
+                            "inline": true
                         }
-                    ]
-                }
-            ]
-        };
+                    ]);
+        
     }
 
     discordMessageWaitingForPlayers() {
