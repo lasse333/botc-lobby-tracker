@@ -103,6 +103,7 @@ class BOTCLobby {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+flags: 1 << 12, // this makes the message silent (no notifications) but unread marker still appears
                 content: `Nu åbner rummet "${this.getLobbyName()}"`
             })
         })
