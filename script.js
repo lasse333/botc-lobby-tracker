@@ -339,11 +339,22 @@ class BOTCLobby {
         return storyTellers;
     }
 
-    getPlayers() {
+    getAllSeats() {
         if (!this.isLobbyOpen()) return [];
 
         const players = [];
         this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "players").content.forEach(playerNode => {
+            const playerName = playerNode.content;
+            players.push(new BOTCPlayer(playerName));
+        });
+        return players;
+    }
+
+    getPlayers() {
+        if (!this.isLobbyOpen()) return [];
+
+        const players = [];
+        this.#lobbyHTML.getChildByTagName("body").getChildByAttribute("class", "players").content.filter(playerNode => playerNode.attributes?.id).forEach(playerNode => {
             const playerName = playerNode.content;
             players.push(new BOTCPlayer(playerName));
         });
