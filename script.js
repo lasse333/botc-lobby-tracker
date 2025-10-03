@@ -433,7 +433,7 @@ function dateToFootnote(date) {
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-        timezone: "Europe/Copenhagen",
+        timeZone: "Europe/Copenhagen",
     });
     return footnote;
 }
